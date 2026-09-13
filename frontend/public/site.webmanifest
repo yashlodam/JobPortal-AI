@@ -1,0 +1,17 @@
+{
+  "name": "JobPortal AI",
+  "short_name": "JobPortal AI",
+  "description": "AI-Powered Job Matching & Career Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06080F",
+  "theme_color": "#06080F",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

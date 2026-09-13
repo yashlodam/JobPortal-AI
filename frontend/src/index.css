@@ -1,0 +1,1497 @@
+/* ============================================================
+   Fonts — all @import rules must come first (CSS spec)
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700,800,900&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ============================================================
+   Design Tokens
+   ============================================================ */
+@theme {
+
+  /* ── Fonts ── */
+  --font-satoshi: "Satoshi", "Inter", system-ui, sans-serif;
+  --font-inter:   "Inter",   system-ui, sans-serif;
+
+  /* ── Primary — Indigo ── */
+  --color-primary:       #6366F1;
+  --color-primary-light: #818CF8;
+  --color-primary-dark:  #4F46E5;
+  --color-primary-glow:  rgba(99, 102, 241, 0.15);
+
+  /* ── Accent — Cyan ── */
+  --color-accent:       #06B6D4;
+  --color-accent-light: #22D3EE;
+  --color-accent-glow:  rgba(6, 182, 212, 0.15);
+
+  /* ── Accent Warm — Amber ── */
+  --color-accent-warm:       #F59E0B;
+  --color-accent-warm-light: #FBBF24;
+
+  /* ── Violet (gradient mid-point) ── */
+  --color-violet:       #8B5CF6;
+  --color-violet-light: #A78BFA;
+
+  /* ── Dynamic Semantic Backgrounds ── */
+  --color-background:       var(--bg-app);
+  --color-surface:          var(--bg-surface);
+  --color-surface-elevated: var(--bg-elevated);
+  --color-surface-hover:    var(--bg-hover);
+
+  /* ── Dynamic Semantic Text ── */
+  --color-heading:         var(--text-heading);
+  --color-body:            var(--text-body);
+  --color-muted:           var(--text-muted);
+  --color-text-on-primary: #FFFFFF;
+
+  /* ── Dynamic Semantic Borders ── */
+  --color-border:        var(--border-subtle);
+  --color-border-active: var(--border-active);
+  --color-border-hover:  var(--border-hover);
+
+  /* ── Semantic Colors ── */
+  --color-success:       #10B981;
+  --color-success-light: #34D399;
+  --color-warning:       #F59E0B;
+  --color-danger:        #EF4444;
+  --color-info:          #3B82F6;
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-error:   var(--status-error);
+  --color-status-info:    var(--status-info);
+
+  /* ── Radius — 8-point scale ── */
+  --radius-xs:   8px;
+  --radius-sm:   12px;
+  --radius-md:   16px;
+  --radius-lg:   20px;
+  --radius-xl:   24px;
+  --radius-2xl:  28px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-card:         var(--shadow-card-token);
+  --shadow-elevated:     var(--shadow-elevated-token);
+  --shadow-glow-primary: 0 0 40px rgba(99, 102, 241, 0.15),  0 0 80px rgba(99, 102, 241, 0.05);
+  --shadow-glow-accent:  0 0 40px rgba(6, 182, 212, 0.15),   0 0 80px rgba(6, 182, 212, 0.05);
+  --shadow-glow-violet:  0 0 40px rgba(139, 92, 246, 0.15),  0 0 80px rgba(139, 92, 246, 0.05);
+  --shadow-navbar:       var(--shadow-navbar-token);
+  --shadow-button:       0 0 20px rgba(99, 102, 241, 0.25);
+
+  /* ── Easing ── */
+  --ease-smooth:    cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Animation ── */
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-float-slow: float-slow 6s ease-in-out infinite;
+}
+
+/* ============================================================
+   Base Reset & CSS Variables
+   ============================================================ */
+
+:root,
+html.light,
+body.light {
+  color-scheme: light;
+  --bg-app: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --bg-hover: #E2E8F0;
+  --text-heading: #0F172A;
+  --text-body: #334155;
+  --text-muted: #64748B;
+  --border-subtle: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --border-active: rgba(99, 102, 241, 0.50);
+  --status-success: #059669;
+  --status-warning: #D97706;
+  --status-error:   #E11D48;
+  --status-info:    #2563EB;
+  --shadow-card-token: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04);
+  --shadow-elevated-token: 0 4px 6px rgba(0,0,0,0.04), 0 16px 48px rgba(0,0,0,0.06);
+  --shadow-navbar-token: 0 1px 0 rgba(15, 23, 42, 0.06), 0 4px 20px rgba(0,0,0,0.04);
+}
+
+body.light {
+  background-color: #F8FAFC !important;
+  color: #334155;
+}
+
+html.dark,
+body.dark {
+  color-scheme: dark;
+  --bg-app: #070B12;
+  --bg-surface: #0D1117;
+  --bg-elevated: #161B22;
+  --bg-hover: #1F2937;
+  --text-heading: #F8FAFC;
+  --text-body: #94A3B8;
+  --text-muted: #64748B;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.18);
+  --border-active: rgba(99, 102, 241, 0.40);
+  --status-success: #34D399;
+  --status-warning: #FBBF24;
+  --status-error:   #F87171;
+  --status-info:    #60A5FA;
+  --shadow-card-token: 0 1px 3px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.2);
+  --shadow-elevated-token: 0 4px 6px rgba(0,0,0,0.3), 0 16px 48px rgba(0,0,0,0.3);
+  --shadow-navbar-token: 0 1px 0 rgba(148, 163, 184, 0.06), 0 4px 20px rgba(0,0,0,0.3);
+
+  background-color: #070B12 !important;
+  color: #94A3B8;
+}
+
+/* ============================================================
+   Global Mobile Viewport, Touch & Overflow Protection
+   ============================================================ */
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100%;
+  touch-action: manipulation;
+  background-color: var(--bg-app);
+  color: var(--text-body);
+}
+
+#root {
+  overflow-x: clip;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fast tap response & no grey tap highlight on mobile devices */
+button, a, input, select, textarea, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================
+   Light Mode — Comprehensive Hardcoded Dark Color Overrides
+   ============================================================ */
+
+/* ── 1. Page-Level Backgrounds (Off-white / Slate-50) ── */
+html.light [class*="bg-[#05070d]"],
+html.light [class*="bg-[#070b12]"],
+html.light [class*="bg-[#04060b]"],
+html.light [class*="bg-[#06080F]"],
+html.light [class*="bg-[#030712]"],
+html.light [class*="bg-[#080b12]"],
+html.light [class*="bg-[#071412]"],
+html.light [class*="bg-[#05130d]"] {
+  background-color: #F8FAFC !important;
+}
+
+/* ── 2. Card / Surface / Modal / Panel Backgrounds (Pure White) ── */
+html.light [class*="bg-[#090d16]"],
+html.light [class*="bg-[#0d1322]"],
+html.light [class*="bg-[#0d131f]"],
+html.light [class*="bg-[#0c111f]"],
+html.light [class*="bg-[#161B22]"],
+html.light [class*="bg-[#0f1629]"],
+html.light [class*="bg-[#070b14]"],
+html.light [class*="bg-[#0b0f19]"],
+html.light [class*="bg-[#080c16]"],
+html.light [class*="bg-[#182234]"],
+html.light [class*="bg-[#090e1c]"],
+html.light [class*="bg-[#0f172a]"],
+html.light [class*="bg-[#0a0f18]"],
+html.light [class*="bg-[#0c1220]"],
+html.light [class*="bg-[#080d1a]"],
+html.light [class*="bg-[#0c1122]"],
+html.light [class*="bg-[#0c1224]"],
+html.light [class*="bg-[#0B1220]"],
+html.light [class*="bg-[#111625]"],
+html.light [class*="bg-[#0e1424]"],
+html.light [class*="bg-[#0c111e]"],
+html.light [class*="bg-[#0d121f]"],
+html.light [class*="bg-[#0c101c]"],
+html.light [class*="bg-[#0D1117]"],
+html.light [class*="bg-[#1C2333]"] {
+  background-color: #FFFFFF !important;
+}
+
+/* ── 3. Subtle translucent white backgrounds → subtle dark tint in light mode ── */
+html.light [class*="bg-white/5"],
+html.light [class*="bg-white/8"],
+html.light [class*="bg-white/10"],
+html.light [class*="bg-white/15"],
+html.light [class*="bg-white/20"],
+html.light [class*="bg-white/[0.02]"],
+html.light [class*="bg-white/[0.03]"],
+html.light [class*="bg-white/[0.04]"],
+html.light [class*="bg-white/[0.05]"],
+html.light [class*="bg-white/[0.06]"],
+html.light [class*="bg-white/[0.07]"],
+html.light [class*="bg-white/[0.08]"],
+html.light [class*="bg-white/[0.09]"] {
+  background-color: rgba(15, 23, 42, 0.04) !important;
+}
+
+/* ── 4. Borders ── */
+html.light [class*="border-white/5"],
+html.light [class*="border-white/10"],
+html.light [class*="border-white/15"],
+html.light [class*="border-white/20"],
+html.light [class*="border-white/25"],
+html.light [class*="border-white/30"],
+html.light [class*="border-white/[0.05]"],
+html.light [class*="border-white/[0.06]"],
+html.light [class*="border-white/[0.07]"],
+html.light [class*="border-white/[0.08]"],
+html.light [class*="border-white/[0.09]"],
+html.light [class*="border-white/[0.1]"],
+html.light [class*="border-white/[0.12]"],
+html.light [class*="border-white/[0.15]"],
+html.light [class*="border-white/[0.2]"] {
+  border-color: #E2E8F0 !important;
+}
+
+/* ── 5. Headings & General Text in Light Mode (Scoped to light containers) ── */
+html.light .text-white:not([class*="bg-slate-900"] *):not([class*="bg-slate-950"] *):not([class*="bg-[#070b12]"] *):not([class*="bg-[#0b0f19]"] *):not(.auth-hero-panel *):not([data-theme-preserve="dark"] *):not([class*="bg-indigo-6"]):not([class*="bg-indigo-7"]):not([class*="bg-indigo-8"]):not([class*="bg-indigo-9"]):not([class*="bg-primary"]):not([class*="from-indigo-6"]):not([class*="from-indigo-7"]):not([class*="from-indigo-8"]):not([class*="bg-purple-6"]):not([class*="bg-purple-7"]):not([class*="bg-emerald-6"]):not([class*="bg-rose-6"]):not([class*="bg-blue-6"]):not(.text-white-force):not(.text-white-force *) {
+  color: #0F172A;
+}
+
+html.light [class*="text-white/40"]:not([class*="bg-slate-900"] *):not([class*="bg-slate-950"] *):not([class*="bg-[#070b12]"] *):not([class*="bg-[#0b0f19]"] *):not(.auth-hero-panel *):not([data-theme-preserve="dark"] *) {
+  color: #64748B !important;
+}
+
+html.light [class*="text-white/50"]:not([class*="bg-slate-900"] *):not([class*="bg-slate-950"] *):not([class*="bg-[#070b12]"] *):not([class*="bg-[#0b0f19]"] *):not(.auth-hero-panel *):not([data-theme-preserve="dark"] *),
+html.light [class*="text-white/60"]:not([class*="bg-slate-900"] *):not([class*="bg-slate-950"] *):not([class*="bg-[#070b12]"] *):not([class*="bg-[#0b0f19]"] *):not(.auth-hero-panel *):not([data-theme-preserve="dark"] *) {
+  color: #64748B !important;
+}
+
+html.light [class*="text-white/70"]:not([class*="bg-slate-900"] *):not([class*="bg-slate-950"] *):not([class*="bg-[#070b12]"] *):not([class*="bg-[#0b0f19]"] *):not(.auth-hero-panel *):not([data-theme-preserve="dark"] *),
+html.light [class*="text-white/80"]:not([class*="bg-slate-900"] *):not([class*="bg-slate-950"] *):not([class*="bg-[#070b12]"] *):not([class*="bg-[#0b0f19]"] *):not(.auth-hero-panel *):not([data-theme-preserve="dark"] *),
+html.light [class*="text-white/90"]:not([class*="bg-slate-900"] *):not([class*="bg-slate-950"] *):not([class*="bg-[#070b12]"] *):not([class*="bg-[#0b0f19]"] *):not(.auth-hero-panel *):not([data-theme-preserve="dark"] *) {
+  color: #334155 !important;
+}
+
+/* ── Explicit preservation for intentionally dark containers & auth hero panel ── */
+html.light [data-theme-preserve="dark"],
+html.light [data-theme-preserve="dark"] *,
+html.light .auth-hero-panel,
+html.light .auth-hero-panel * {
+  color: #FFFFFF !important;
+}
+
+html.light [data-theme-preserve="dark"] [class*="text-slate-200"],
+html.light [data-theme-preserve="dark"] [class*="text-slate-300"],
+html.light .auth-hero-panel [class*="text-slate-200"],
+html.light .auth-hero-panel [class*="text-slate-300"] {
+  color: #E2E8F0 !important;
+}
+
+html.light [data-theme-preserve="dark"] [class*="text-slate-400"],
+html.light .auth-hero-panel [class*="text-slate-400"] {
+  color: #94A3B8 !important;
+}
+
+/* ── 6. Solid Primary, Dark & Signature Badges / Buttons text color preservation ── */
+html.light .text-white-force,
+html.light .text-white-force *,
+html.light .btn-primary,
+html.light .btn-primary *,
+html.light [class*="gradient-bg-signature"],
+html.light [class*="gradient-bg-signature"] *,
+html.light .badge-indigo-solid,
+html.light .badge-indigo-solid *,
+html.light span.bg-indigo-600,
+html.light span.bg-primary,
+html.light button.bg-indigo-600,
+html.light button.bg-primary {
+  color: #FFFFFF !important;
+}
+
+/* ── 7. Transparent Gradient Text Preservation (Strict High Priority) ── */
+html.light .bg-clip-text,
+html.light [class*="bg-clip-text"],
+html.light .text-transparent,
+html.light [class*="text-transparent"],
+html.light span.bg-clip-text,
+html.light span[class*="bg-clip-text"],
+html.light h1 span[class*="bg-clip-text"] {
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+/* ── 8. Colored Text / Badges Contrast Enhancement in Light Mode ── */
+html.light .text-indigo-100,
+html.light .text-indigo-200,
+html.light .text-indigo-300,
+html.light .text-indigo-400 {
+  color: #3730A3 !important;
+}
+
+html.light .text-purple-100,
+html.light .text-purple-200,
+html.light .text-purple-300,
+html.light .text-purple-400 {
+  color: #5B21B6 !important;
+}
+
+html.light .text-pink-100,
+html.light .text-pink-200,
+html.light .text-pink-300,
+html.light .text-pink-400 {
+  color: #9F1239 !important;
+}
+
+html.light .text-cyan-100,
+html.light .text-cyan-200,
+html.light .text-cyan-300,
+html.light .text-cyan-400 {
+  color: #155E75 !important;
+}
+
+html.light .text-emerald-100,
+html.light .text-emerald-200,
+html.light .text-emerald-300,
+html.light .text-emerald-400 {
+  color: #064E3B !important;
+}
+
+html.light .text-amber-100,
+html.light .text-amber-200,
+html.light .text-amber-300,
+html.light .text-amber-400 {
+  color: #78350F !important;
+}
+
+html.light .text-rose-100,
+html.light .text-rose-200,
+html.light .text-rose-300,
+html.light .text-rose-400 {
+  color: #881337 !important;
+}
+
+/* ── 9. Soft Pill Badge Backgrounds ── */
+html.light [class*="bg-indigo-500/"],
+html.light [class*="bg-indigo-600/"] {
+  background-color: rgba(99, 102, 241, 0.10) !important;
+}
+
+html.light [class*="bg-purple-500/"],
+html.light [class*="bg-purple-600/"] {
+  background-color: rgba(139, 92, 246, 0.10) !important;
+}
+
+html.light [class*="bg-emerald-500/"] {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+}
+
+html.light [class*="bg-amber-500/"] {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+}
+
+html.light [class*="bg-rose-500/"] {
+  background-color: rgba(239, 68, 68, 0.10) !important;
+}
+
+html.light [class*="bg-cyan-500/"] {
+  background-color: rgba(6, 182, 212, 0.10) !important;
+}
+
+/* ── 10. Form Controls (Inputs, Textareas, Selects) ── */
+html.light input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.bg-transparent),
+html.light textarea:not(.bg-transparent),
+html.light select,
+html.light .mantine-Input-input {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder,
+html.light .mantine-Input-input::placeholder {
+  color: #94A3B8 !important;
+}
+
+html.light input:focus,
+html.light textarea:focus,
+html.light select:focus,
+html.light .mantine-Input-input:focus {
+  border-color: #6366F1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+
+/* ── 11. Header & Navigation in Light Mode ── */
+html.light header {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-bottom-color: #E2E8F0 !important;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.05), 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* ── 12. Cards, Panels, Modals, Drawers ── */
+html.light .mantine-Paper-root,
+html.light .mantine-Modal-content,
+html.light .mantine-Drawer-content,
+html.light .mantine-Menu-dropdown,
+html.light .mantine-Popover-dropdown,
+html.light .mantine-Select-dropdown {
+  background-color: #FFFFFF !important;
+  border-color: #E2E8F0 !important;
+  color: #0F172A !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .mantine-Modal-header,
+html.light .mantine-Drawer-header {
+  background-color: #F8FAFC !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+html.light .mantine-Menu-item {
+  color: #334155 !important;
+}
+
+html.light .mantine-Menu-item:hover {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+}
+
+html.light .mantine-Menu-divider {
+  border-color: #E2E8F0 !important;
+}
+
+/* ── 13. Hover States ── */
+html.light [class*="hover:bg-white/10"]:hover,
+html.light [class*="hover:bg-white/5"]:hover,
+html.light [class*="hover:bg-white/[0.06]"]:hover {
+  background-color: #F1F5F9 !important;
+}
+
+html.light [class*="hover:bg-[#0c111f]"]:hover,
+html.light [class*="hover:bg-[#161B22]"]:hover,
+html.light [class*="hover:bg-[#090d16]"]:hover {
+  background-color: #F1F5F9 !important;
+}
+
+/* ── 14. Ambient Radial Mesh in Light Mode (Soft, Not Dark) ── */
+html.light [class*="bg-radial"],
+html.light [class*="from-indigo-950/"],
+html.light [class*="to-indigo-950/"],
+html.light [class*="via-indigo-950/"],
+html.light [class*="from-purple-950/"],
+html.light [class*="to-purple-950/"] {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+html.light [class*="blur-[180px]"],
+html.light [class*="blur-[190px]"],
+html.light [class*="blur-[200px]"],
+html.light [class*="blur-[220px]"] {
+  opacity: 0.15 !important;
+}
+
+/* ── 15. Dividers ── */
+html.light .border-b { border-bottom-color: #E2E8F0 !important; }
+html.light .border-t { border-top-color: #E2E8F0 !important; }
+html.light hr { border-color: #E2E8F0 !important; }
+
+/* ── 16. Scrollbars ── */
+html.light ::-webkit-scrollbar-track  { background: #F1F5F9; }
+html.light ::-webkit-scrollbar-thumb  { background: rgba(15,23,42,0.15); border-radius: 999px; }
+html.light ::-webkit-scrollbar-thumb:hover { background: rgba(15,23,42,0.25); }
+
+/* Prevent any child from triggering horizontal scroll */
+#root {
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+img, video, svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Better touch targets for interactive elements */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+::selection {
+  background-color: rgba(99, 102, 241, 0.3);
+  color: #F1F5F9;
+}
+
+
+::selection {
+  background-color: rgba(99, 102, 241, 0.3);
+  color: #F1F5F9;
+}
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+/* ============================================================
+   Focus Styles — Accessibility
+   ============================================================ */
+
+*:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.6);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   Skip-to-Content Link
+   ============================================================ */
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+/* ============================================================
+   Layout Utilities
+   ============================================================ */
+
+/* ONE global container used by every section */
+.section-container {
+  width: 100%;
+  max-width: 1540px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;   /* 16px */
+  padding-right: 1rem;
+}
+
+@media (min-width: 480px) {
+  .section-container {
+    padding-left: 1.25rem; /* 20px */
+    padding-right: 1.25rem;
+  }
+}
+
+@media (min-width: 640px) {
+  .section-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+
+@media (min-width: 1024px) {
+  .section-container {
+    padding-inline: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .section-container {
+    padding-left: 2.5rem;  /* 40px */
+    padding-right: 2.5rem;
+  }
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Section vertical spacing — 8px grid: 80px mobile → 112px desktop */
+.section-padding {
+  padding-top: 5rem;    /* 80px */
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-top: 7rem;   /* 112px */
+    padding-bottom: 7rem;
+  }
+}
+
+/* ============================================================
+   Typography Scale
+   ============================================================ */
+
+.heading-xl {
+  font-family: var(--font-satoshi);
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  font-weight: 800;
+  color: var(--color-heading);
+}
+
+.heading-lg {
+  font-family: var(--font-satoshi);
+  font-size: clamp(1.75rem, 4vw, 3.5rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  color: var(--color-heading);
+}
+
+.heading-md {
+  font-family: var(--font-satoshi);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.heading-sm {
+  font-family: var(--font-satoshi);
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  color: var(--color-heading);
+}
+
+.body-lg {
+  font-size: 1.125rem;  /* 18px */
+  line-height: 1.75;
+  color: var(--color-body);
+}
+
+.body-base {
+  font-size: 1rem;      /* 16px */
+  line-height: 1.625;
+  color: var(--color-body);
+}
+
+.body-sm {
+  font-size: 0.875rem;  /* 14px */
+  line-height: 1.5;
+  color: var(--color-body);
+}
+
+.body-xs {
+  font-size: 0.75rem;   /* 12px */
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+/* ============================================================
+   Gradient Text
+   ============================================================ */
+
+.gradient-text {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6, #06B6D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-warm {
+  background: linear-gradient(135deg, #6366F1, #EC4899, #F59E0B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   Glassmorphism
+   ============================================================ */
+
+.glass {
+  background: rgba(13, 17, 23, 0.60);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+}
+
+.glass-strong {
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(148, 163, 184, 0.10);
+}
+
+/* ============================================================
+   Gradient Border
+   ============================================================ */
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.30),
+    rgba(139, 92, 246, 0.10),
+    rgba(6, 182, 212, 0.30)
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ============================================================
+   Gradient Backgrounds
+   ============================================================ */
+
+.gradient-bg-signature {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+}
+
+.glow-primary {
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.15), 0 0 80px rgba(99, 102, 241, 0.05);
+}
+
+.glow-accent {
+  box-shadow: 0 0 40px rgba(6, 182, 212, 0.15), 0 0 80px rgba(6, 182, 212, 0.05);
+}
+
+/* ============================================================
+   Button Primitives
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;                       /* 44px — accessible touch target */
+  padding: 0 24px;
+  border-radius: var(--radius-sm);    /* 12px */
+  font-family: var(--font-inter);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s var(--ease-smooth);
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.btn:focus-visible {
+  outline: 2px solid rgba(99, 102, 241, 0.6);
+  outline-offset: 3px;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Primary */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-violet));
+  color: var(--color-text-on-primary);
+  box-shadow: var(--shadow-button);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 28px rgba(99, 102, 241, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-button);
+}
+
+/* Secondary */
+.btn-secondary {
+  background: var(--color-surface-elevated);
+  color: var(--color-heading);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  border-color: rgba(99, 102, 241, 0.30);
+  background: var(--color-surface-hover);
+}
+
+.btn-secondary:active {
+  background: var(--color-surface-hover);
+}
+
+/* Ghost */
+.btn-ghost {
+  background: transparent;
+  color: var(--color-body);
+}
+
+.btn-ghost:hover {
+  background: var(--color-surface-elevated);
+  color: var(--color-heading);
+}
+
+.btn-ghost:active {
+  background: var(--color-surface-hover);
+}
+
+/* Sizes */
+.btn-sm {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+  border-radius: var(--radius-xs); /* 8px */
+}
+
+.btn-lg {
+  height: 52px;
+  padding: 0 32px;
+  font-size: 16px;
+  border-radius: var(--radius-md); /* 16px */
+}
+
+.btn-icon {
+  width: 44px;
+  padding: 0;
+}
+
+.btn-icon.btn-sm {
+  width: 36px;
+}
+
+/* Loading state */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn-loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.30);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: btn-spin 0.6s linear infinite;
+}
+
+@keyframes btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   Input Primitives
+   ============================================================ */
+
+.input {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 44px;                       /* 44px — accessible touch target */
+  padding: 0 16px;
+  border-radius: var(--radius-sm);    /* 12px */
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  color: var(--color-heading);
+  font-family: var(--font-inter);
+  font-size: 14px;
+  line-height: 1;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.input::placeholder {
+  color: var(--color-muted);
+}
+
+.input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.40);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+.input:hover:not(:focus) {
+  border-color: var(--color-border-hover);
+}
+
+.input-lg {
+  height: 52px;
+  padding: 0 20px;
+  font-size: 15px;
+  border-radius: var(--radius-md);
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  color: var(--color-heading);
+  font-family: var(--font-inter);
+  font-size: 14px;
+  line-height: 1.625;
+  resize: vertical;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.textarea::placeholder {
+  color: var(--color-muted);
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.40);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-heading);
+}
+
+.input-error {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10) !important;
+}
+
+.input-error-message {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--color-danger);
+}
+
+/* Search input group — used in Hero and FindJobs */
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-muted);
+  transition: color 0.2s;
+}
+
+.search-input-wrapper:focus-within .search-icon {
+  color: var(--color-primary);
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  height: 48px;
+  padding-left: 44px;
+  padding-right: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-elevated);
+  color: var(--color-heading);
+  font-family: var(--font-inter);
+  font-size: 15px;
+  transition: all 0.2s var(--ease-smooth);
+}
+
+.search-input-wrapper input::placeholder {
+  color: var(--color-muted);
+}
+
+.search-input-wrapper input:focus {
+  outline: none;
+  border-color: rgba(99, 102, 241, 0.40);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+/* ============================================================
+   Card Primitives
+   ============================================================ */
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);  /* 20px */
+  padding: 24px;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.card:hover {
+  border-color: rgba(99, 102, 241, 0.20);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-primary);
+}
+
+.card-sm {
+  padding: 16px;
+  border-radius: var(--radius-sm);
+}
+
+.card-lg {
+  padding: 32px;
+  border-radius: var(--radius-lg);
+}
+
+@media (min-width: 640px) {
+  .card-lg {
+    padding: 40px;
+  }
+}
+
+/* ============================================================
+   Badge Primitives
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.badge-primary {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--color-primary-light);
+}
+
+.badge-accent {
+  background: rgba(6, 182, 212, 0.12);
+  color: var(--color-accent-light);
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--color-success-light);
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-accent-warm-light);
+}
+
+.badge-muted {
+  background: var(--color-surface-elevated);
+  color: var(--color-muted);
+}
+
+/* ============================================================
+   Keyframe Animations
+   ============================================================ */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Profile banner shimmer — uses translateX approach */
+@keyframes shimmer-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes shine {
+  0%   { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+
+/* Hover-triggered shine — paused by default, plays on group-hover */
+.shine-sweep {
+  animation: shine 0.7s ease-in-out;
+  animation-play-state: paused;
+}
+
+.group:hover .shine-sweep {
+  animation-play-state: running;
+}
+
+@keyframes border-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float          { animation: float 5s ease-in-out infinite; }
+.animate-float-slow     { animation: float-slow 6s ease-in-out infinite; }
+.animate-shimmer        { animation: shimmer 2s linear infinite; }
+.animate-gradient-shift { animation: gradient-shift 6s ease infinite; background-size: 200% 200%; }
+.animate-pulse-glow     { animation: pulse-glow 2.5s ease-in-out infinite; }
+.animate-rotate-slow    { animation: rotate-slow 20s linear infinite; }
+.animate-shine          { animation: shine 3s ease-in-out infinite; }
+.animate-fade-in-up     { animation: fade-in-up 0.6s var(--ease-out-expo) forwards; }
+
+/* ============================================================
+   Touch Target Utility — 44×44px min accessible size
+   ============================================================ */
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================
+   Mesh Gradient Background
+   ============================================================ */
+
+.mesh-gradient {
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(99, 102, 241, 0.08), transparent),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(6, 182, 212, 0.06), transparent),
+    radial-gradient(ellipse 50% 40% at 50% 80%, rgba(139, 92, 246, 0.06), transparent);
+}
+
+/* ============================================================
+   Marquee — prevents inner content from triggering overflow
+   ============================================================ */
+
+.rfm-marquee-container {
+  overflow: hidden !important;
+}
+
+/* ============================================================
+   Reduced Motion — Respect user preference
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .animate-float,
+  .animate-float-slow,
+  .animate-shimmer,
+  .animate-gradient-shift,
+  .animate-pulse-glow,
+  .animate-rotate-slow,
+  .animate-shine,
+  .animate-fade-in-up {
+    animation: none !important;
+  }
+}
+
+/* Universal Input Placeholder Fix */
+::placeholder {
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+.mantine-TextInput-input::placeholder,
+.mantine-PasswordInput-innerInput::placeholder,
+.mantine-PasswordInput-input::placeholder {
+  color: #94A3B8 !important;
+  opacity: 1 !important;
+}
+
+/* ============================================================
+   Page Shell & Surface Utilities
+   Use these instead of hardcoded dark hex in components.
+   Automatically adapts to light / dark theme via CSS vars.
+   ============================================================ */
+
+/* Full-page background */
+.page-bg {
+  background-color: var(--bg-app);
+  color: var(--text-body);
+}
+
+/* Card / panel surface */
+.surface {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Elevated surface (modals, popovers) */
+.surface-elevated {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Hover surface */
+.surface-hover {
+  background-color: var(--bg-hover);
+}
+
+/* ============================================================
+   Glass utilities — theme-aware (dark: translucent; light: white)
+   ============================================================ */
+
+.glass-card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================================
+   Status / Application pipeline chip colors
+   Works in both light and dark because uses fixed semantic colors
+   ============================================================ */
+
+.status-applied    { background: rgba(59, 130, 246, 0.10); color: var(--status-info); }
+.status-reviewing  { background: rgba(245, 158, 11, 0.10); color: var(--status-warning); }
+.status-shortlist  { background: rgba(99, 102, 241, 0.10); color: #818CF8; }
+.status-interview  { background: rgba(139, 92, 246, 0.10); color: #A78BFA; }
+.status-selected   { background: rgba(16, 185, 129, 0.12); color: var(--status-success); }
+.status-offered    { background: rgba(16, 185, 129, 0.12); color: var(--status-success); }
+.status-rejected   { background: rgba(239, 68, 68, 0.10); color: var(--status-error); }
+.status-withdrawn  { background: rgba(100, 116, 139, 0.10); color: var(--text-muted); }
+
+/* ============================================================
+   Divider
+   ============================================================ */
+
+.divider {
+  height: 1px;
+  background-color: var(--border-subtle);
+  border: none;
+  margin: 0;
+}
+
+/* ============================================================
+   Sidebar nav item — active / hover states
+   ============================================================ */
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-xs);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-body);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-heading);
+}
+
+.nav-item.active {
+  background: rgba(99, 102, 241, 0.10);
+  color: #818CF8;
+  font-weight: 600;
+}
+
+.nav-item.active:hover {
+  background: rgba(99, 102, 241, 0.14);
+}
+
+/* ============================================================
+   Stat card — for dashboards
+   ============================================================ */
+
+.stat-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-card-token);
+}
+
+/* ============================================================
+   Table utilities — theme-aware
+   ============================================================ */
+
+.table-base {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table-base th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.table-base td {
+  padding: 14px 16px;
+  color: var(--text-body);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.table-base tr:last-child td {
+  border-bottom: none;
+}
+
+.table-base tr:hover td {
+  background: var(--bg-hover);
+}
+
+/* ============================================================
+   No-scrollbar utility — for smooth mobile horizontal scrolling
+   ============================================================ */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================================================
+   Mobile Ergonomic Utilities
+   ============================================================ */
+
+/* Safe Area Insets for iOS & notched modern devices */
+.pb-safe {
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+}
+.pb-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.mb-safe {
+  margin-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Touch-optimized horizontal scrolling with momentum */
+.touch-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+
+.touch-scroll-x > * {
+  scroll-snap-align: start;
+}
+
+/* Fluid mobile typography helpers */
+@media (max-width: 640px) {
+  .mobile-tight-heading {
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+  }
+}

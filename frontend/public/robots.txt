@@ -1,0 +1,20 @@
+# JobPortal AI Robots.txt
+User-agent: *
+Allow: /
+Allow: /find-jobs
+Allow: /jobs/*
+Allow: /about
+
+# Disallow private application & management routes from search engine indexing
+Disallow: /dashboard
+Disallow: /upload-job
+Disallow: /recruiter/
+Disallow: /admin/
+Disallow: /my-jobs
+Disallow: /messages
+Disallow: /notifications
+Disallow: /settings
+Disallow: /profile
+Disallow: /talent-profile
+
+Sitemap: https://jobportal.ai/sitemap.xml

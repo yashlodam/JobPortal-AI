@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>JobPortal AI | AI-Powered Job Matching &amp; Career Platform</title>
+
+    <!-- Meta Description & Robots -->
+    <meta
+      name="description"
+      content="Discover jobs matched to your skills and experience with AI-powered job matching, ATS resume analysis, career insights, and modern recruitment tools for candidates and recruiters."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="application-name" content="JobPortal AI" />
+
+    <!-- Theme & Mobile Integration -->
+    <meta name="theme-color" content="#F8FAFC" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="apple-mobile-web-app-title" content="JobPortal AI" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem("jp_theme");
+          if (saved === "dark") {
+            document.documentElement.classList.add("dark");
+            document.documentElement.classList.remove("light");
+          } else {
+            document.documentElement.classList.add("light");
+            document.documentElement.classList.remove("dark");
+          }
+        } catch (e) {
+          document.documentElement.classList.add("light");
+        }
+      })();
+    </script>
+
+    <!-- Favicon & Web App Manifest -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="JobPortal AI" />
+    <meta property="og:title" content="JobPortal AI | AI-Powered Job Matching &amp; Career Platform" />
+    <meta
+      property="og:description"
+      content="Discover jobs matched to your skills with AI-powered job matching, ATS resume insights, interactive resume builder, and mock interview practice."
+    />
+    <meta property="og:image" content="/banner.png" />
+    <meta property="og:image:alt" content="JobPortal AI Platform Overview" />
+
+    <!-- Twitter / X Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="JobPortal AI | AI-Powered Job Matching &amp; Career Platform" />
+    <meta
+      name="twitter:description"
+      content="Discover jobs matched to your skills with AI-powered job matching, ATS resume insights, and modern recruitment tools."
+    />
+    <meta name="twitter:image" content="/banner.png" />
+    <meta name="twitter:image:alt" content="JobPortal AI Platform Overview" />
+
+    <!-- Font Loading & Resource Optimization -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,800,900&amp;display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Factual Structured Data (Schema.org JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "JobPortal AI",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "All",
+        "description": "AI-powered recruitment and career platform providing intelligent job matching, ATS resume analysis, skill-gap analysis, interactive resume builder, and mock interview preparation."
+      }
+    </script>
+  </head>
+  <body>
+    <!-- React Root Mount Target -->
+    <div id="root"></div>
+
+    <!-- JavaScript Disabled Fallback -->
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: system-ui, -apple-system, sans-serif; background-color: #06080F; color: #ffffff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;">JavaScript Required</h1>
+        <p style="font-size: 0.875rem; color: #94a3b8; max-width: 28rem; line-height: 1.5;">
+          JobPortal AI requires JavaScript to provide the full AI-powered job matching, career insights, and application experience. Please enable JavaScript in your browser to continue.
+        </p>
+      </div>
+    </noscript>
+
+    <!-- Vite React Entry Script -->
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
