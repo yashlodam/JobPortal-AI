@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 # 💼 JobPortal AI
 ### Enterprise Full-Stack Recruitment & AI Career Intelligence Platform
@@ -17,7 +17,7 @@
   Featuring real-time STOMP WebSockets, automated ATS resume scoring, AI mock interview coaching, and a memory-hardened low-footprint cloud architecture.
 </p>
 
-[Explore Live Demo](https://job-portal-frontend-rho-nine.vercel.app) • [View Architecture Docs](./PROJECT_PORTFOLIO_CASE_STUDY.md) • [Report Bug](https://github.com/yashlodam/JobPortal-FullStack/issues)
+[Explore Live Demo](https://job-portal-frontend-rho-nine.vercel.app) • [View Architecture Docs](./PROJECT_PORTFOLIO_CASE_STUDY.md) • [Report Bug](https://github.com/yashlodam/JobPortal-AI/issues)
 
 </div>
 
