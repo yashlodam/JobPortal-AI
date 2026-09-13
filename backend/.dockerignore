@@ -1,0 +1,39 @@
+# Version control
+.git
+.gitignore
+
+# Docker
+.dockerignore
+
+# Build outputs
+target/
+*.jar
+*.war
+
+# IDE configuration
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Documentation & Scratch
+HELP.md
+scratch/
+*.md
+
+# Local environment & secrets
+.env
+.env.*
+*.local
+
+# Runtime uploads & logs
+uploads/
+*.log
+*.tmp
+*.pdf
+*.docx
+.DS_Store
+Thumbs.db
+.gemini/
