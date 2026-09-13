@@ -1454,33 +1454,47 @@ export default function MessagesPage() {
                 </AnimatePresence>
               </div>
 
-              {/* Bottom Input Bar */}
-              <div className={`px-3 sm:px-4 py-2 sm:py-2.5 flex items-center gap-2 border-t z-10 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] ${
-                isLight ? "bg-white/95 border-slate-200" : "bg-surface-elevated/95 border-border"
+              {/* WhatsApp-Style Bottom Input Bar */}
+              <div className={`px-2.5 sm:px-4 py-2 sm:py-2.5 flex items-center gap-2 border-t z-20 shrink-0 pb-[max(0.6rem,env(safe-area-inset-bottom))] ${
+                isLight ? "bg-white/95 border-slate-200 shadow-lg shadow-black/5" : "bg-surface-elevated/95 border-border shadow-2xl"
               }`}>
-                <input
-                  type="text"
-                  value={inputText}
-                  onChange={handleInputChange}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-                  placeholder={otherParticipant?.name ? `Message ${otherParticipant.name.split(" ")[0]}…` : "Type a message…"}
-                  maxLength={5000}
-                  enterKeyHint="send"
-                  className={`flex-1 min-w-0 rounded-xl border px-3.5 py-2.5 sm:px-4 sm:py-2 text-base sm:text-xs outline-none font-medium transition min-h-[42px] ${
-                    isLight
-                      ? "border-slate-200 bg-slate-50 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 shadow-xs"
-                      : "border-white/10 bg-white/5 text-white placeholder-slate-400 focus:border-indigo-500/60"
-                  }`}
-                />
+                {/* Rounded Pill Text Input Container */}
+                <div className={`flex-1 min-w-0 flex items-center rounded-full border px-4 py-1.5 transition-all ${
+                  isLight
+                    ? "border-slate-200 bg-slate-100/80 focus-within:bg-white focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20"
+                    : "border-white/10 bg-white/5 focus-within:bg-white/[0.08] focus-within:border-indigo-500/60 focus-within:ring-2 focus-within:ring-indigo-500/20"
+                }`}>
+                  <input
+                    type="text"
+                    value={inputText}
+                    onChange={handleInputChange}
+                    onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                    placeholder={otherParticipant?.name ? `Message ${otherParticipant.name.split(" ")[0]}…` : "Type a message…"}
+                    maxLength={5000}
+                    enterKeyHint="send"
+                    className={`w-full bg-transparent text-sm sm:text-xs outline-none font-medium transition placeholder:font-normal ${
+                      isLight
+                        ? "text-slate-900 placeholder:text-slate-400"
+                        : "text-white placeholder-slate-400"
+                    }`}
+                  />
+                </div>
 
+                {/* WhatsApp-Style Circular Action Button */}
                 <button
                   type="button"
                   onClick={() => handleSend()}
                   disabled={!inputText.trim()}
-                  className="h-10 w-10 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md transition-all active:scale-90 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100 cursor-pointer shrink-0"
                   aria-label="Send message"
+                  className={`h-10 w-10 sm:h-11 sm:w-11 rounded-full flex items-center justify-center text-white transition-all duration-200 cursor-pointer shrink-0 active:scale-90 shadow-md ${
+                    inputText.trim()
+                      ? "bg-gradient-to-tr from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-indigo-500/30 scale-100"
+                      : isLight
+                      ? "bg-indigo-600/30 text-white/70 cursor-not-allowed scale-95"
+                      : "bg-white/10 text-white/40 cursor-not-allowed scale-95"
+                  }`}
                 >
-                  <Send size={16} />
+                  <Send size={17} className={`transition-transform duration-200 ${inputText.trim() ? "translate-x-0.5" : ""}`} />
                 </button>
               </div>
             </>

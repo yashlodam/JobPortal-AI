@@ -1095,27 +1095,35 @@ export default function RecruiterMessagesPage() {
                 </AnimatePresence>
               </div>
 
-              {/* Bottom Input Bar */}
-              <div className="px-3 sm:px-4 py-2 sm:py-2.5 bg-surface flex items-center gap-2 border-t border-border z-10 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-                <input
-                  type="text"
-                  value={inputText}
-                  onChange={handleInputChange}
-                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-                  placeholder={otherParticipant?.name ? `Message ${otherParticipant.name.split(" ")[0]}…` : "Type message to candidate…"}
-                  maxLength={5000}
-                  enterKeyHint="send"
-                  className="flex-1 min-w-0 rounded-xl border border-border bg-surface-elevated px-3.5 py-2.5 sm:px-4 sm:py-2 text-base sm:text-xs text-heading placeholder:text-muted outline-none focus:border-primary font-medium transition min-h-[42px]"
-                />
+              {/* WhatsApp-Style Bottom Input Bar */}
+              <div className="px-2.5 sm:px-4 py-2 sm:py-2.5 bg-surface flex items-center gap-2 border-t border-border z-20 shrink-0 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-2xl">
+                {/* Rounded Pill Text Input Container */}
+                <div className="flex-1 min-w-0 flex items-center rounded-full border border-border bg-surface-elevated px-4 py-1.5 focus-within:border-primary/70 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                  <input
+                    type="text"
+                    value={inputText}
+                    onChange={handleInputChange}
+                    onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                    placeholder={otherParticipant?.name ? `Message ${otherParticipant.name.split(" ")[0]}…` : "Type message to candidate…"}
+                    maxLength={5000}
+                    enterKeyHint="send"
+                    className="w-full bg-transparent text-sm sm:text-xs text-heading placeholder:text-muted outline-none font-medium transition placeholder:font-normal"
+                  />
+                </div>
 
+                {/* WhatsApp-Style Circular Action Button */}
                 <button
                   type="button"
                   onClick={() => handleSend()}
                   disabled={!inputText.trim()}
-                  className="h-10 w-10 sm:h-10 sm:w-10 rounded-xl gradient-bg-signature flex items-center justify-center text-white shadow-md transition-all active:scale-90 hover:scale-105 disabled:opacity-40 disabled:hover:scale-100 cursor-pointer shrink-0"
                   aria-label="Send message"
+                  className={`h-10 w-10 sm:h-11 sm:w-11 rounded-full flex items-center justify-center text-white transition-all duration-200 cursor-pointer shrink-0 active:scale-90 shadow-md ${
+                    inputText.trim()
+                      ? "gradient-bg-signature shadow-indigo-500/30 scale-100"
+                      : "bg-surface-elevated text-muted border border-border cursor-not-allowed scale-95 opacity-50"
+                  }`}
                 >
-                  <Send size={16} />
+                  <Send size={17} className={`transition-transform duration-200 ${inputText.trim() ? "translate-x-0.5" : ""}`} />
                 </button>
               </div>
             </>
