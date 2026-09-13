@@ -1111,19 +1111,19 @@ export default function RecruiterMessagesPage() {
                   />
                 </div>
 
-                {/* WhatsApp-Style Circular Action Button */}
+                {/* WhatsApp-Style Circular Action Button — Always prominently visible */}
                 <button
                   type="button"
                   onClick={() => handleSend()}
                   disabled={!inputText.trim()}
                   aria-label="Send message"
-                  className={`h-10 w-10 sm:h-11 sm:w-11 rounded-full flex items-center justify-center text-white transition-all duration-200 cursor-pointer shrink-0 active:scale-90 shadow-md ${
+                  className={`h-10 w-10 sm:h-11 sm:w-11 min-h-[40px] min-w-[40px] rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 active:scale-90 shadow-md ${
                     inputText.trim()
-                      ? "gradient-bg-signature shadow-indigo-500/30 scale-100"
-                      : "bg-surface-elevated text-muted border border-border cursor-not-allowed scale-95 opacity-50"
+                      ? "gradient-bg-signature text-white shadow-indigo-500/40 scale-100"
+                      : "bg-primary text-white opacity-70 hover:opacity-100 shadow-sm"
                   }`}
                 >
-                  <Send size={17} className={`transition-transform duration-200 ${inputText.trim() ? "translate-x-0.5" : ""}`} />
+                  <Send size={18} className={`transition-transform duration-200 ${inputText.trim() ? "translate-x-0.5" : ""}`} />
                 </button>
               </div>
             </>

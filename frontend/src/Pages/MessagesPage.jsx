@@ -1480,21 +1480,21 @@ export default function MessagesPage() {
                   />
                 </div>
 
-                {/* WhatsApp-Style Circular Action Button */}
+                {/* WhatsApp-Style Circular Action Button — Always prominently visible */}
                 <button
                   type="button"
                   onClick={() => handleSend()}
                   disabled={!inputText.trim()}
                   aria-label="Send message"
-                  className={`h-10 w-10 sm:h-11 sm:w-11 rounded-full flex items-center justify-center text-white transition-all duration-200 cursor-pointer shrink-0 active:scale-90 shadow-md ${
+                  className={`h-10 w-10 sm:h-11 sm:w-11 min-h-[40px] min-w-[40px] rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 active:scale-90 shadow-md ${
                     inputText.trim()
-                      ? "bg-gradient-to-tr from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-indigo-500/30 scale-100"
+                      ? "bg-gradient-to-tr from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-indigo-500/40 scale-100"
                       : isLight
-                      ? "bg-indigo-600/30 text-white/70 cursor-not-allowed scale-95"
-                      : "bg-white/10 text-white/40 cursor-not-allowed scale-95"
+                      ? "bg-indigo-600 text-white opacity-70 hover:opacity-100 shadow-sm"
+                      : "bg-indigo-500 text-white opacity-70 hover:opacity-100 shadow-sm"
                   }`}
                 >
-                  <Send size={17} className={`transition-transform duration-200 ${inputText.trim() ? "translate-x-0.5" : ""}`} />
+                  <Send size={18} className={`transition-transform duration-200 ${inputText.trim() ? "translate-x-0.5" : ""}`} />
                 </button>
               </div>
             </>
