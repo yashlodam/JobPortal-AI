@@ -127,26 +127,65 @@ export default function RecruiterMessagesPage() {
   const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = useAppSelector((state) => state.auth.profile || state.auth.user);
-  const currentUserId = currentUser?.id ?? currentUser?.userId;
+  const currentUserId = currentUser?.id ?? currentUser?.userId ?? currentUser?.applicantId;
   const currentUserEmail = (currentUser?.email || "").toLowerCase();
+
+  // Extract all possible identifiers for current user
+  const myIds = useMemo(() => {
+    const ids = [
+      currentUserId,
+      currentUser?.id,
+      currentUser?.userId,
+      currentUser?.applicantId,
+      currentUser?.user?.id,
+      currentUser?.user?.userId,
+    ].filter((id) => id !== null && id !== undefined && id !== "");
+    return new Set(ids.map(String));
+  }, [currentUserId, currentUser]);
+
+  const myEmails = useMemo(() => {
+    const emails = [
+      currentUserEmail,
+      currentUser?.email,
+      currentUser?.user?.email,
+    ].filter((e) => Boolean(e && typeof e === "string"));
+    return new Set(emails.map((e) => e.toLowerCase()));
+  }, [currentUserEmail, currentUser]);
 
   const isMessageFromMe = useCallback(
     (msg) => {
       if (!msg) return false;
       if (msg._optimistic) return true;
-      const senderId = msg.sender?.id ?? msg.sender?.userId;
-      if (currentUserId != null && senderId != null) {
-        if (senderId === currentUserId || String(senderId) === String(currentUserId)) {
-          return true;
-        }
-      }
-      const senderEmail = (msg.sender?.email || "").toLowerCase();
-      if (currentUserEmail && senderEmail && currentUserEmail === senderEmail) {
+
+      // Check all possible sender ID fields
+      const senderId =
+        msg.sender?.id ??
+        msg.sender?.userId ??
+        msg.senderId ??
+        msg.sender_id ??
+        msg.userId ??
+        msg.sender?.applicantId;
+
+      if (senderId != null && myIds.has(String(senderId))) {
         return true;
       }
+
+      // Check all possible sender email fields
+      const senderEmail = (
+        msg.sender?.email ||
+        (typeof msg.sender === "string" ? msg.sender : "") ||
+        msg.senderEmail ||
+        msg.sender_email ||
+        ""
+      ).toLowerCase();
+
+      if (senderEmail && myEmails.has(senderEmail)) {
+        return true;
+      }
+
       return false;
     },
-    [currentUserId, currentUserEmail]
+    [myIds, myEmails]
   );
 
   const chat = useChat();
@@ -360,15 +399,15 @@ export default function RecruiterMessagesPage() {
         },
         onTyping: (data) => {
           const isMe =
-            (currentUserId != null && String(data.userId) === String(currentUserId)) ||
-            (currentUserEmail && (data.email || "").toLowerCase() === currentUserEmail);
-          if (!isMe) setOtherTyping(data.typing === true);
+            (data?.userId != null && myIds.has(String(data.userId))) ||
+            (data?.email && myEmails.has(data.email.toLowerCase()));
+          if (!isMe) setOtherTyping(data?.typing === true);
         },
         onRead: () => {},
         onPresence: (presence) => {
           const isMe =
-            (currentUserId != null && String(presence.user?.id) === String(currentUserId)) ||
-            (currentUserEmail && (presence.user?.email || "").toLowerCase() === currentUserEmail);
+            (presence?.user?.id != null && myIds.has(String(presence.user.id))) ||
+            (presence?.user?.email && myEmails.has(presence.user.email.toLowerCase()));
           if (!isMe) {
             setOtherOnline(presence.online === true);
             setConversations((prev) =>
@@ -388,7 +427,7 @@ export default function RecruiterMessagesPage() {
         },
       });
     },
-    [chat, currentUserId, currentUserEmail, isMessageFromMe, scrollToBottom]
+    [chat, myIds, myEmails, isMessageFromMe, scrollToBottom]
   );
 
   // Sync mobile chat view when convId query param changes
@@ -523,6 +562,7 @@ export default function RecruiterMessagesPage() {
   return (
     <RecruiterLayout
       noPadding={true}
+      hideMobileNavbar={showMobileChat}
     >
       {/* Full-height Responsive Chat Container */}
       <div className="flex-1 min-h-0 w-full bg-surface overflow-hidden border-0 md:border md:border-border md:rounded-2xl md:m-3 md:w-[calc(100%-1.5rem)] shadow-xl flex font-inter text-heading">

@@ -193,26 +193,65 @@ export default function MessagesPage() {
   const dispatch = useAppDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentUser = useAppSelector((state) => state.auth.profile || state.auth.user);
-  const currentUserId = currentUser?.id ?? currentUser?.userId;
+  const currentUserId = currentUser?.id ?? currentUser?.userId ?? currentUser?.applicantId;
   const currentUserEmail = (currentUser?.email || "").toLowerCase();
+
+  // Extract all possible identifiers for current user
+  const myIds = useMemo(() => {
+    const ids = [
+      currentUserId,
+      currentUser?.id,
+      currentUser?.userId,
+      currentUser?.applicantId,
+      currentUser?.user?.id,
+      currentUser?.user?.userId,
+    ].filter((id) => id !== null && id !== undefined && id !== "");
+    return new Set(ids.map(String));
+  }, [currentUserId, currentUser]);
+
+  const myEmails = useMemo(() => {
+    const emails = [
+      currentUserEmail,
+      currentUser?.email,
+      currentUser?.user?.email,
+    ].filter((e) => Boolean(e && typeof e === "string"));
+    return new Set(emails.map((e) => e.toLowerCase()));
+  }, [currentUserEmail, currentUser]);
 
   const isMessageFromMe = useCallback(
     (msg) => {
       if (!msg) return false;
       if (msg._optimistic) return true;
-      const senderId = msg.sender?.id ?? msg.sender?.userId;
-      if (currentUserId != null && senderId != null) {
-        if (senderId === currentUserId || String(senderId) === String(currentUserId)) {
-          return true;
-        }
-      }
-      const senderEmail = (msg.sender?.email || "").toLowerCase();
-      if (currentUserEmail && senderEmail && currentUserEmail === senderEmail) {
+
+      // Check all possible sender ID fields
+      const senderId =
+        msg.sender?.id ??
+        msg.sender?.userId ??
+        msg.senderId ??
+        msg.sender_id ??
+        msg.userId ??
+        msg.sender?.applicantId;
+
+      if (senderId != null && myIds.has(String(senderId))) {
         return true;
       }
+
+      // Check all possible sender email fields
+      const senderEmail = (
+        msg.sender?.email ||
+        (typeof msg.sender === "string" ? msg.sender : "") ||
+        msg.senderEmail ||
+        msg.sender_email ||
+        ""
+      ).toLowerCase();
+
+      if (senderEmail && myEmails.has(senderEmail)) {
+        return true;
+      }
+
       return false;
     },
-    [currentUserId, currentUserEmail]
+    [myIds, myEmails]
   );
 
   const myApplications = useAppSelector((state) => state.application?.myApplications || []);
@@ -468,8 +507,8 @@ export default function MessagesPage() {
         },
         onTyping: (data) => {
           const isMe =
-            (currentUserId != null && String(data.userId) === String(currentUserId)) ||
-            (currentUserEmail && (data.email || "").toLowerCase() === currentUserEmail);
+            (data?.userId != null && myIds.has(String(data.userId))) ||
+            (data?.email && myEmails.has(data.email.toLowerCase()));
           if (!isMe) {
             setOtherTyping(data.typing === true);
           }
@@ -477,8 +516,8 @@ export default function MessagesPage() {
         onRead: () => {},
         onPresence: (presence) => {
           const isMe =
-            (currentUserId != null && String(presence.user?.id) === String(currentUserId)) ||
-            (currentUserEmail && (presence.user?.email || "").toLowerCase() === currentUserEmail);
+            (presence?.user?.id != null && myIds.has(String(presence.user.id))) ||
+            (presence?.user?.email && myEmails.has(presence.user.email.toLowerCase()));
           if (!isMe) {
             setOtherOnline(presence.online === true);
             setConversations((prev) =>
@@ -1097,7 +1136,7 @@ export default function MessagesPage() {
                     </div>
                   )}
 
-                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3">
+                  <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 space-y-2.5 sm:space-y-3 overscroll-contain">
                     {/* Clean Security / Verified Header */}
                     <div className="flex justify-center my-1">
                       <div className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 py-1.5 text-[11px] text-center font-medium max-w-md ${

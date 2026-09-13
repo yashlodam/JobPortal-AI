@@ -27,7 +27,7 @@ import {
   XCircle,
 } from "lucide-react";
 
-export default function RecruiterLayout({ title, subtitle, breadcrumbs = [], action, noPadding = false, children }) {
+export default function RecruiterLayout({ title, subtitle, breadcrumbs = [], action, noPadding = false, hideMobileNavbar = false, children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [resubmitOpen, setResubmitOpen] = useState(false);
@@ -71,7 +71,9 @@ export default function RecruiterLayout({ title, subtitle, breadcrumbs = [], act
       {/* Main Container */}
       <div className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ${sidebarCollapsed ? "md:ml-20" : "md:ml-64"} ${noPadding ? "h-full overflow-hidden" : ""}`}>
         {/* Navbar */}
-        <RecruiterNavbar onOpenMobileSidebar={() => setMobileSidebarOpen(true)} />
+        <div className={hideMobileNavbar ? "hidden md:block" : ""}>
+          <RecruiterNavbar onOpenMobileSidebar={() => setMobileSidebarOpen(true)} />
+        </div>
 
         {/* Content Area */}
         <main className={`flex-1 min-h-0 w-full mx-auto ${noPadding ? "p-0 max-w-full flex flex-col overflow-hidden" : "p-4 sm:p-6 lg:p-8 max-w-7xl space-y-6"}`}>

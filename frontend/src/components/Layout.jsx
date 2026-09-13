@@ -37,8 +37,12 @@ function Layout() {
 
       <ScrollToTop />
 
-      {/* Header — hidden for Studio/Auth routes, visible on public & messages */}
-      {!hideUserHeader && <Header />}
+      {/* Header — hidden for Studio/Auth routes, and on mobile inside messages to maximize chat space */}
+      {!hideUserHeader && (
+        <div className={isMessagesRoute ? "hidden md:block shrink-0" : ""}>
+          <Header />
+        </div>
+      )}
 
       {/* Main Page Content */}
       <main id="main-content" className={`relative w-full flex-1 min-h-0 flex flex-col ${isMessagesRoute ? "pb-0 overflow-hidden" : "pb-16 md:pb-0"}`}>
