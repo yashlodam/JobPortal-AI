@@ -63,140 +63,285 @@
 
 ## 🏗️ System Architecture
 
-The following diagram illustrates the complete end-to-end request flow, event routing, dual-layer storage synchronization, and asynchronous AI analysis pipelines:
+### 🌐 High-Level End-to-End System Topology
+
+The platform is designed around a decoupled, event-driven reactive architecture separating the static Edge Single Page Application (SPA), the stateful real-time API server, PostgreSQL persistent storage with binary backing, and distributed AI evaluation pipelines:
 
 `
-                                      ┌─────────────────────────────┐
-                                      │       Client Devices        │
-                                      │ (Desktop / Tablet / Mobile) │
-                                      └──────────────┬──────────────┘
+                               ┌─────────────────────────────────────────────────────────┐
+                               │                    CLIENT DEVICES                       │
+                               │    Desktop Browser  •  Mobile Web  •  Tablet Viewport   │
+                               └────────────────────────────┬────────────────────────────┘
+                                                            │
+                                                HTTPS / WSS │ Global Edge Anycast
+                                                            ▼
+                               ┌─────────────────────────────────────────────────────────┐
+                               │                    EDGE CDN & ROUTING                   │
+                               │                Vercel Edge Global Network               │
+                               │   • Sub-50ms TTFB Static Delivery                       │
+                               │   • Client-side SPA Rewrites (vercel.json)              │
+                               │   • Gzip/Brotli Automated Asset Compression             │
+                               └────────────────────────────┬────────────────────────────┘
+                                                            │
+                                     ┌──────────────────────┴──────────────────────┐
+                                     │                                             │
+                        REST Requests (JSON / Bearer JWT)             Native WSS STOMP Frames
+                                     │                                             │
+                                     ▼                                             ▼
+       ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+       │                                  APPLICATION SERVER                                     │
+       │                   Render Cloud Environment (Spring Boot 3.5.x on Java 21)               │
+       │                                                                                         │
+       │  ┌───────────────────────────┐  ┌───────────────────────────┐  ┌─────────────────────┐  │
+       │  │   Spring Security 6       │  │   STOMP WebSocket Broker  │  │  File Storage Sub-  │  │
+       │  │   • Stateless JWT Filter  │  │   • Native WSS Handshake  │  │    system (Dual)    │  │
+       │  │   • RBAC Channel Intercept│  │   • Sub/Pub Topic Routing │  │  • Disk Cache Fast  │  │
+       │  │   • BCrypt Salt Hashing   │  │   • Exponential Backoff   │  │  • PostgreSQL Bytea │  │
+       │  └─────────────┬─────────────┘  └─────────────┬─────────────┘  └──────────┬──────────┘  │
+       │                │                              │                           │             │
+       │                ▼                              ▼                           ▼             │
+       │  ┌───────────────────────────────────────────────────────────────────────────────────┐  │
+       │  │                           Core Business Service Layer                             │  │
+       │  │    JobService  •  ProfileService  •  ChatService  •  JobMatchService  •  Auth     │  │
+       │  └──────────────────────────────────────────┬────────────────────────────────────────┘  │
+       └─────────────────────────────────────────────┼───────────────────────────────────────────┘
                                                      │
-                                         HTTPS / WSS │ Global Edge CDN
-                                                     ▼
-                                      ┌─────────────────────────────┐
-                                      │      Vercel Edge Host       │
-                                      │   React 18 + Vite SPA       │
-                                      │ (Redux Toolkit, Mantine UI) │
-                                      └──────────────┬──────────────┘
-                                                     │
-                                                     │ REST API (Bearer JWT) /
-                                                     │ Native WSS STOMP Broker
-                                                     ▼
-                                      ┌─────────────────────────────┐
-                                      │    Render Cloud Runtime     │
-                                      │  Spring Boot 3.5 (Java 21)  │
-                                      │   Security 6 + FilterChain  │
-                                      └──────┬───────────────┬──────┘
-                                             │               │
-                     HikariCP (3 Conn Pool)  │               │ Spring AI Gemini Client
-                                             ▼               ▼
-                        ┌─────────────────────────┐    ┌─────────────────────────┐
-                        │   PostgreSQL (Supabase) │    │  Google Gemini 1.5 API  │
-                        │  Relational Entities +  │    │  (ATS Parser, Mock QA,  │
-                        │  Binary Storage (bytea) │    │   Skill Match Engine)   │
-                        └────────────┬────────────┘    └─────────────────────────┘
-                                     │
-                                     ▼ Dual-Layer Sync
-                        ┌─────────────────────────┐
-                        │  Local Disk Cache Fall- │
-                        │  back (/uploads/ dir)   │
-                        └─────────────────────────┘
+                             ┌───────────────────────┴───────────────────────┐
+                             │                                               │
+               HikariCP Throttled Pool (Max 3)                     Spring AI REST Client
+                             │                                               │
+                             ▼                                               ▼
+       ┌───────────────────────────────────────────┐   ┌─────────────────────────────────────────┐
+       │            DATABASE CLUSTER               │   │           EXTERNAL AI SUITE             │
+       │          PostgreSQL 15 (Supabase)         │   │         Google Gemini 1.5 Flash         │
+       │                                           │   │                                         │
+       │  • Relational Schema (Users, Jobs, Apps)  │   │  • ATS Keyword & Formatting Analysis    │
+       │  • Relational Profiles & Experiences      │   │  • Dynamic Interview Question Gen       │
+       │  • StoredFile (bytea self-healing BLOB)   │   │  • Candidate Response Scoring & Rubric  │
+       │  • Low Connection-Churn Ergonomics        │   │  • Semantic Resume Match Evaluation     │
+       └───────────────────────────────────────────┘   └─────────────────────────────────────────┘
+`
+
+---
+
+### 🔄 Multi-Layer Data Flow & Pipeline Lifecycles
+
+`
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 1. Candidate Application & Dual-Storage File Upload Pipeline                                   │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+ Candidate UI ──(Multipart/Form)──> UploadedFileController ──> LocalFileStorageServiceImpl
+                                                                     ├── Write to Disk Cache (/uploads/)
+                                                                     └── Persist in PostgreSQL (StoredFile bytea)
+                                                                                  │
+ Candidate UI <──(200 OK + CDN URL)───────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 2. ATS Resume Analysis & Hybrid Deterministic-LLM Scoring Pipeline                             │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+ Resume File (PDF/DOCX) ──> ResumeParserService (Apache PDFBox / Apache POI)
+                                    │
+                                    ├──> Phase 1: Deterministic AST Scoring (Layout, Keywords, Structure)
+                                    └──> Phase 2: Spring AI Prompt Assembly ──> Gemini 1.5 Flash API
+                                                                                     │
+ Recruiter & Candidate UI <──(Aggregated Score 0-100 + Qualitative Gap Insights)────┘
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ 3. Full-Duplex Real-Time STOMP WebSocket Messaging Pipeline                                    │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+ Recruiter Client ──[SEND /app/chat.sendMessage]──> JwtChannelInterceptor (Frame Auth)
+                                                              │
+                                                  ChatWebSocketController
+                                                              │
+               ┌──────────────────────────────────────────────┴──────────────────────────────┐
+               ▼                                                                             ▼
+    Persist in Message Entity (DB)                               Broadcast to /topic/conversation.{id}
+                                                                                             │
+ Candidate Client <──[MESSAGE Frame Delivery]────────────────────────────────────────────────┘
 `
 
 ---
 
 ## 📂 Monorepo Directory Structure
 
-A clean, enterprise-grade unified monorepo preserving 100% git commit history across client and server sub-systems:
+This repository is structured as an enterprise unified monorepo containing both the React 18 frontend and the Java 21 backend, preserving 100% of historical commits across both codebases:
 
 `
-JobPortal-AI/
-├── .gitignore                                # Root gitignore covering Node, Maven, IDEs
-├── PROJECT_PORTFOLIO_CASE_STUDY.md           # Comprehensive technical whitepaper & benchmarks
-├── README.md                                 # Root architecture & quickstart documentation
+JobPortal-AI/ (Monorepo Root)
+├── .gitignore                                    # Unified ignore rules (Node, Maven, IDEs, .env)
+├── PROJECT_PORTFOLIO_CASE_STUDY.md               # Technical whitepaper, metrics & architecture specs
+├── README.md                                     # Root enterprise documentation & setup guide
 │
-├── frontend/                                 # Client Single Page Application (React 18 + Vite)
-│   ├── public/                               # Static assets, branding logos, webmanifest, sitemap
-│   ├── src/
-│   │   ├── api/                              # Centralized Axios clients with cold-start retry
-│   │   │   ├── chatApi.js                    # REST messaging fallback endpoints
-│   │   │   ├── interviewApi.js               # Mock interview session endpoints
-│   │   │   └── jobMatchApi.js                # Recruiter match analysis endpoints
-│   │   ├── components/                       # Shared UI Design System
-│   │   │   ├── auth/                         # ProtectedRoute, RecruiterRoute, AdminRoute guards
-│   │   │   ├── recruiter/                    # Candidate cards, MatchAnalysisModal, VerifyNotice
-│   │   │   └── ui/                           # Mantine wrappers, skeletons, toasts, confirm dialogs
-│   │   ├── config/                           # Base URLs, WebSocket endpoint mapping, API routes
-│   │   ├── context/                          # React context providers (Theme, Auth, WebSocket)
-│   │   ├── features/                         # Modular business domains
-│   │   │   ├── career-hub/                   # Skill assessment tests & career roadmap engine
-│   │   │   ├── mock-interview/               # Real-time voice/text AI interview simulator
-│   │   │   ├── notifications/                # Real-time notification drawer & action hooks
-│   │   │   ├── resume-analyzer/              # ATS file dropzone, breakdown charts & scoring UI
-│   │   │   └── resume-builder/               # Live drag-and-drop resume generation studio
-│   │   ├── hooks/                            # Custom hooks (useWebSocket, useDebounce, useTheme)
-│   │   ├── LandingPage/                      # High-converting landing view & feature carousels
-│   │   ├── Pages/                            # Top-level route pages
-│   │   │   ├── admin/                        # Admin dashboard, user moderation, analytics
-│   │   │   ├── recruiter/                    # Jobs manager, pipeline Kanban, applicants view
-│   │   │   ├── ApplyJobPage.jsx              # Guided 3-step application modal
-│   │   │   ├── FindJobs.jsx                  # Multi-facet search with URL query synchronization
-│   │   │   ├── MessagesPage.jsx              # STOMP chat interface with typing indicators
-│   │   │   └── ProfilePage.jsx               # Instant-hydrating candidate profile studio
-│   │   ├── Profile/                          # Modular profile sub-editors (Certificates, Exp, etc.)
-│   │   ├── State/                            # Redux Toolkit store, modular slices & async thunks
-│   │   ├── utils/                            # Dynamic asset resolvers, date math, sanitizers
-│   │   ├── App.jsx                           # Application router & suspense boundaries
-│   │   ├── index.css                         # Tailwind CSS directives & CSS design tokens
-│   │   └── main.jsx                          # Root React DOM bootstrap
-│   ├── package.json                          # Frontend dependencies & npm scripts
-│   ├── tailwind.config.js                    # Semantic design tokens & color palettes
-│   └── vite.config.js                        # Rollup chunking & dev-server proxy rules
+├── 📁 frontend/                                  # Client Single Page Application (React 18 + Vite)
+│   ├── 📁 public/                                # Static public distribution assets
+│   │   ├── 📁 Companies/                         # Partner & enterprise employer branding logos
+│   │   ├── avatar.jpg                            # Default avatar placeholder
+│   │   ├── banner.png                            # Default profile cover canvas
+│   │   ├── favicon.svg                           # Scalable platform vector favicon
+│   │   ├── robots.txt                            # Search engine crawler policies
+│   │   ├── site.webmanifest                      # PWA installation manifest
+│   │   └── sitemap.xml                           # Search indexing routes
+│   │
+│   ├── 📁 src/
+│   │   ├── 📁 api/                               # Centralized HTTP & Axios client modules
+│   │   │   ├── chatApi.js                        # Conversation feeds & REST fallback endpoints
+│   │   │   ├── interviewApi.js                   # Mock interview lifecycle session triggers
+│   │   │   └── jobMatchApi.js                    # Recruiter candidate match intelligence APIs
+│   │   │
+│   │   ├── 📁 components/                        # Atomic & Domain UI Component System
+│   │   │   ├── 📁 auth/                          # Route guard wrappers (ProtectedRoute, RecruiterRoute)
+│   │   │   ├── 📁 recruiter/                     # Recruiter UI (Candidate cards, MatchAnalysisModal)
+│   │   │   └── 📁 ui/                            # Atomic primitives (Modals, Toast, ConfirmDialog)
+│   │   │
+│   │   ├── 📁 config/                            # Environment config, Axios interceptors, WS URLs
+│   │   ├── 📁 context/                           # React contextual providers (ThemeContext, AuthContext)
+│   │   │
+│   │   ├── 📁 features/                          # Self-contained business feature domains
+│   │   │   ├── 📁 career-hub/                    # Technical skill assessments & career progression
+│   │   │   ├── 📁 mock-interview/                # Voice/text real-time AI interview simulator
+│   │   │   ├── 📁 notifications/                 # Real-time toast & in-app notification drawer
+│   │   │   ├── 📁 resume-analyzer/               # ATS upload zone, radar charts & score breakdowns
+│   │   │   └── 📁 resume-builder/                # Dynamic interactive resume PDF generator
+│   │   │
+│   │   ├── 📁 hooks/                             # Custom React hooks (useWebSocket, useDebounce)
+│   │   ├── 📁 LandingPage/                       # High-converting landing view, hero, stats & testimonials
+│   │   │
+│   │   ├── 📁 Pages/                             # Top-level route views
+│   │   │   ├── 📁 admin/                         # Admin analytics, user moderation, audit logs
+│   │   │   ├── 📁 recruiter/                     # Post-job studio, pipeline Kanban, applicants view
+│   │   │   ├── 📁 TalentProfile/                 # Candidate public profile showcase & recommendations
+│   │   │   ├── ApplyJobPage.jsx                  # Guided 3-step candidate application modal
+│   │   │   ├── CareerHubPage.jsx                 # Career roadmaps and skill test modules
+│   │   │   ├── CompanyPage.jsx                   # Employer directory & verified profile pages
+│   │   │   ├── FindJobs.jsx                      # Multi-facet job search with URL parameter sync
+│   │   │   ├── FindTalent.jsx                    # Recruiter candidate discovery engine
+│   │   │   ├── Home.jsx                          # Main portal home dashboard
+│   │   │   ├── JobDetail.jsx                     # Complete job requisition specifications
+│   │   │   ├── MessagesPage.jsx                  # STOMP real-time chat with presence & typing
+│   │   │   ├── MyJobsPage.jsx                    # Candidate application status tracker
+│   │   │   ├── ProfilePage.jsx                   # Zero-FOUC instant-hydrating candidate profile
+│   │   │   └── UploadJob.jsx                     # Recruiter job authoring wizard
+│   │   │
+│   │   ├── 📁 Profile/                           # Modular candidate profile studio sub-components
+│   │   │   ├── About.jsx                         # Candidate biographical summary
+│   │   │   ├── CertiCard.jsx                     # Industry certification badges
+│   │   │   ├── ExpCard.jsx                       # Timeline employment experience blocks
+│   │   │   └── Profile.jsx                       # Main composite profile editor & banner manager
+│   │   │
+│   │   ├── 📁 State/                             # Redux Toolkit Global State Management
+│   │   │   ├── applicationSlice.js               # Application pipeline status & async thunks
+│   │   │   ├── AuthSlice.js                      # Authenticated principal & JWT persistence
+│   │   │   ├── CompanySlice.js                   # Employer company metadata & listings
+│   │   │   ├── JobSlice.js                       # Job search results, active filters & pagination
+│   │   │   ├── ProfileSlice.js                   # Candidate resume data & experience trees
+│   │   │   └── Store.js                          # Configured Redux Toolkit global store
+│   │   │
+│   │   ├── 📁 utils/                             # Shared utility functions
+│   │   │   ├── assetResolver.js                  # Dynamic image & cloud storage asset resolvers
+│   │   │   └── stringFormatters.js               # Currency, date-time, and string sanitizers
+│   │   │
+│   │   ├── App.jsx                               # Master routing tree, error boundary & suspense
+│   │   ├── index.css                             # Tailwind core directives & semantic design tokens
+│   │   └── main.jsx                              # React 18 concurrent root bootstrap
+│   │
+│   ├── .env.example                              # Template environment variables
+│   ├── .env.production                           # Production edge endpoint bindings
+│   ├── eslint.config.js                          # ESLint rules and code quality checks
+│   ├── package.json                              # Dependencies: React 18, Vite 8, Mantine, Tailwind
+│   ├── tailwind.config.js                        # Theme palette, breakpoints, and animation configs
+│   ├── vercel.json                               # Vercel SPA client routing & security headers
+│   └── vite.config.js                            # Rollup code splitting & chunking rules
 │
-└── backend/                                  # Core Server Engine (Java 21 + Spring Boot 3.5)
-    ├── src/main/java/com/jobportal/
-    │   ├── chat/                             # Real-Time Messaging Subsystem
-    │   │   ├── ChatController.java           # REST conversation history & participant queries
-    │   │   ├── ChatWebSocketController.java  # STOMP @MessageMapping routing
-    │   │   ├── WebSocketConfig.java          # Native WebSocket handshake & StompSubProtocolHandler
-    │   │   └── JwtChannelInterceptor.java    # WSS frame-level authentication guard
-    │   ├── config/                           # SecurityConfig, CorsConfig, AsyncPoolConfig
-    │   ├── controller/                       # REST APIs
-    │   │   ├── AuthController.java           # JWT login, register, OTP email verification
-    │   │   ├── JobController.java            # Job search, faceted filtering, lifecycle states
-    │   │   ├── ProfileController.java        # Candidate profiles, experiences, skills
-    │   │   ├── RecruiterController.java      # Application pipeline state machine & candidate notes
-    │   │   ├── UploadedFileController.java   # Universal CORS static asset streaming
-    │   │   └── HealthController.java         # Liveness/Readiness probes for cloud orchestrators
-    │   ├── copilot/                          # AI Chat Assistant (Natural Language Career Advisor)
-    │   ├── interview/                        # AI Mock Interview Engine
-    │   │   ├── InterviewController.java      # Session initialization, question-answer evaluation
-    │   │   └── AiInterviewService.java       # LLM prompt orchestration & scoring rubrics
-    │   ├── jobmatch/                         # Deterministic + AI Candidate Match Engine
-    │   │   ├── DeterministicJobMatcher.java  # Fast regex/keyword scoring algorithm
-    │   │   └── AiJobMatchService.java        # Deep semantic qualification evaluation
-    │   ├── resumeanalysis/                   # ATS Resume Parsing Engine
-    │   │   ├── AtsStructureCalculator.java   # Section detection, layout structure checks
-    │   │   ├── ResumeScoringEngine.java      # Aggregated health score calculator
-    │   │   └── ResumeParserService.java      # PDFBox / POI raw stream text extractors
-    │   ├── dto/                              # Strict request/response DTO contracts
-    │   ├── entity/                           # JPA Database Entities
-    │   │   ├── User.java                     # Auth credentials, role flags, profile relation
-    │   │   ├── Job.java                      # Job listing schema, salary, recruiter owner
-    │   │   ├── JobApplication.java           # Application state machine (Applied -> Hired)
-    │   │   ├── Profile.java                  # Candidate resume data, experiences, certifications
-    │   │   └── StoredFile.java               # PostgreSQL bytea binary backing store
-    │   ├── repository/                       # Spring Data JPA interfaces
-    │   ├── serviceImpl/                      # Core business logic implementations
-    │   └── utility/
-    │       ├── FileStorageService.java       # Dual-layer self-healing file storage abstraction
-    │       └── JWT.java                      # HMAC-SHA256 token signer and validator
-    ├── src/main/resources/
-    │   ├── application.properties            # Baseline Spring Boot configuration
-    │   └── application-prod.properties       # Low-memory HikariCP, Render cloud profiles
-    ├── Dockerfile                            # Multi-stage lightweight Eclipse Temurin 21 build
-    └── pom.xml                               # Maven dependencies, plugins, and compiler configs
-`
+└── 📁 backend/                                   # Core Server Engine (Java 21 + Spring Boot 3.5.x)
+    ├── 📁 src/main/java/com/jobportal/
+    │   ├── 📁 chat/                              # Real-Time STOMP Messaging Subsystem
+    │   │   ├── ChatController.java               # REST conversation query & message history
+    │   │   ├── ChatWebSocketController.java      # STOMP message & typing indicator handlers
+    │   │   ├── CookieHandshakeInterceptor.java   # HTTP session & cookie handshake extractor
+    │   │   ├── JwtChannelInterceptor.java        # STOMP frame CONNECT authentication interceptor
+    │   │   ├── StompPrincipal.java               # Custom authenticated WebSocket principal
+    │   │   └── WebSocketConfig.java              # Native WebSocket registry & endpoint mapping
+    │   │
+    │   ├── 📁 config/                            # Enterprise Infrastructure Configurations
+    │   │   ├── AsyncConfig.java                  # Thread-bounded Executor for non-blocking tasks
+    │   │   ├── SecurityConfig.java               # Spring Security 6 stateless filter chain
+    │   │   └── WebConfig.java                    # Global CORS policies & static resource handlers
+    │   │
+    │   ├── 📁 controller/                        # REST API Controller Endpoints
+    │   │   ├── AdminUserController.java          # Admin moderation & user management
+    │   │   ├── AuthController.java               # Registration, authentication, OTP verification
+    │   │   ├── HealthController.java             # Cloud liveness & readiness health probe
+    │   │   ├── JobApplicationController.java     # Candidate application submission & retrieval
+    │   │   ├── JobController.java                # Job requisition CRUD & filtered search
+    │   │   ├── NotificationController.java       # User notification stream & read receipts
+    │   │   ├── ProfileController.java            # Candidate profile CRUD & experience timeline
+    │   │   ├── RecruiterController.java          # Recruiter applicant pipeline management
+    │   │   └── UploadedFileController.java       # Universal CORS static asset streaming
+    │   │
+    │   ├── 📁 copilot/                           # AI Career Copilot Assistant
+    │   │   ├── AiCopilotController.java          # Conversational career advisor endpoints
+    │   │   └── AiCopilotServiceImpl.java         # Context-aware LLM prompt orchestration
+    │   │
+    │   ├── 📁 dto/                               # Strict Data Transfer Object Contracts
+    │   │   ├── AuthDTO.java                      # Authentication request & response schemas
+    │   │   ├── JobDTO.java                       # Job requisition request/response envelopes
+    │   │   ├── ProfileDTO.java                   # Candidate profile nested data contract
+    │   │   └── ResponseDTO.java                  # Standardized enterprise API envelope
+    │   │
+    │   ├── 📁 entity/                            # PostgreSQL JPA Entities
+    │   │   ├── Conversation.java                 # Chat conversation thread entity
+    │   │   ├── Job.java                          # Job listing schema, salary, recruiter ref
+    │   │   ├── JobApplication.java               # Candidate application lifecycle entity
+    │   │   ├── Message.java                      # Individual chat message entity
+    │   │   ├── Profile.java                      # Candidate profile, certifications & bio
+    │   │   ├── StoredFile.java                   # Database binary (bytea) backing store
+    │   │   └── User.java                         # Platform user account & role credentials
+    │   │
+    │   ├── 📁 interview/                         # AI Mock Interview Engine
+    │   │   ├── AiInterviewService.java           # LLM interview simulation orchestration
+    │   │   ├── InterviewController.java          # Session initialization & answer submission
+    │   │   ├── InterviewQuestion.java            # Dynamic question model with difficulty tiers
+    │   │   └── InterviewSession.java             # Stateful candidate interview session tracker
+    │   │
+    │   ├── 📁 jobmatch/                          # Candidate-Job Match Intelligence Engine
+    │   │   ├── AiJobMatchService.java            # Deep semantic qualification evaluation
+    │   │   ├── DeterministicJobMatcher.java      # High-speed keyword/regex match algorithm
+    │   │   └── JobMatchRecruiterController.java  # Match score analytics endpoints
+    │   │
+    │   ├── 📁 repository/                        # Spring Data JPA Data Access Interfaces
+    │   │   ├── JobApplicationRepository.java     # Application state queries
+    │   │   ├── JobRepository.java                # Multi-faceted search queries
+    │   │   ├── ProfileRepository.java            # Candidate profile lookups
+    │   │   ├── StoredFileRepository.java         # Binary file store access
+    │   │   └── UserRepository.java               # User account & authentication lookups
+    │   │
+    │   ├── 📁 resumeanalysis/                    # ATS Resume Parsing & Scoring Subsystem
+    │   │   ├── AiResumeAnalyzerService.java      # LLM qualitative analysis & improvement tips
+    │   │   ├── AtsStructureCalculator.java       # Structural layout & contact AST validator
+    │   │   ├── KeywordScoreCalculator.java       # Industry skill & competency matcher
+    │   │   ├── ResumeAnalysisController.java     # File upload & scoring API endpoints
+    │   │   ├── ResumeParserService.java          # PDFBox / POI raw stream text extractor
+    │   │   └── ResumeScoringEngine.java          # Aggregated ATS health score calculator
+    │   │
+    │   ├── 📁 service/                           # Business Logic Service Interfaces
+    │   ├── 📁 serviceImpl/                       # Business Logic Service Implementations
+    │   │   ├── AuthServiceImpl.java              # User registration & BCrypt verification
+    │   │   ├── JobServiceImpl.java               # Job search indexing & pagination logic
+    │   │   ├── LocalFileStorageServiceImpl.java  # Dual-layer self-healing file storage engine
+    │   │   └── ProfileServiceImpl.java           # Profile mutation & experience timeline
+    │   │
+    │   └── 📁 utility/                           # Enterprise Utility Modules
+    │       ├── FileStorageService.java           # Storage interface abstraction
+    │       ├── JWT.java                          # HMAC-SHA256 token generation & validation
+    │       └── OtpGenerator.java                 # Cryptographic OTP token utility
+    │
+    ├── 📁 src/main/resources/
+    │   ├── application.properties                # Base Spring Boot configuration
+    │   └── application-prod.properties           # Container-optimized production profile
+    │
+    ├── Dockerfile                                # Multi-stage Eclipse Temurin 21 production build
+    └── pom.xml                                   # Maven dependencies (Spring Boot, AI, PDFBox)
+
 
 ---
 
@@ -273,7 +418,8 @@ JobPortal-AI/
 * **Problem:** Traditional SockJS fallback emulations trigger browser deprecation warnings (such as synchronous unload handler blocks) and cause aggressive 5-second infinite reconnection loops during server restarts.
 * **Engineering Solution:**
   - Standardized on native WebSocket (wss://) using @stomp/stompjs client-side and StompSubProtocolHandler in Spring Boot.
-  - Implemented **exponential backoff with jitter** (econnectDelay: 5000 * Math.pow(1.5, attempts), capped at 30 seconds, maximum 5 attempts).
+  - Implemented **exponential backoff with jitter** (
+econnectDelay: 5000 * Math.pow(1.5, attempts), capped at 30 seconds, maximum 5 attempts).
   - Built an automatic REST synchronization fallback that activates if WebSocket handshake fails, preserving messaging availability across restrictive corporate firewalls.
 
 ### IV. Dual-Mode Deterministic + LLM Scoring Pipeline
